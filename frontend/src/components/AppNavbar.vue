@@ -27,6 +27,12 @@ defineProps({
         <li>
           <router-link to="/register">Register</router-link>
         </li>
+        <li>
+          <router-link to="/video">Video</router-link>
+        </li>
+        <li>
+          <router-link to="/uploadvideo">Upload Video</router-link>
+        </li>
       </ul>
     </div>
     <AppProfile username="asd" />

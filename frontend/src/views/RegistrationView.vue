@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 const error_message = ref<string>('')
+const success_message = ref<string>('')
 const email = ref<string>('')
 const password = ref<string>('')
 const re_password = ref<string>('')
@@ -9,15 +10,18 @@ const is_form_valid = ref<boolean>(false)
 const check_input = () => {
   if (email.value && password.value && re_password.value && password.value === re_password.value) {
     is_form_valid.value = true
+    error_message.value = ''
+    success_message.value = ''
   } else {
+    error_message.value = ''
+    success_message.value = ''
     is_form_valid.value = false
   }
 }
 
-const submit_form = async (e: Event) => {
-  e.preventDefault()
+const submit_form = async () => {
   try {
-    const response = await fetch('/register', {
+    const response = await fetch('http://127.0.0.1:3000/user/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -26,6 +30,8 @@ const submit_form = async (e: Event) => {
     })
     if (response.ok) {
       console.log(response)
+      const data = await response.json()
+      success_message.value = data.message
     }
   } catch (err) {
     error_message.value = 'An error occured. Please try again.'
@@ -37,11 +43,11 @@ const submit_form = async (e: Event) => {
   <h1>Register</h1>
   <div class="container-center">
     <div class="registration-form">
-      <form class="form-input">
+      <form @submit.prevent="submit_form" class="form-input">
         <input
           type="email"
           placeholder="Enter Email"
-          required
+          required="true"
           v-model="email"
           @input="check_input"
         />
@@ -61,10 +67,11 @@ const submit_form = async (e: Event) => {
           v-model="re_password"
           @input="check_input"
         />
-        <button @click="submit_form" :disabled="!is_form_valid">Submit</button>
+        <button :disabled="!is_form_valid">Submit</button>
       </form>
       <span v-if="error_message" class="error-message">{{ error_message }}</span>
       <span>Already have an account?.<router-link to="/login">Login</router-link></span>
+      <span v-if="success_message" class="success-message">{{ success_message }}</span>
     </div>
   </div>
 </template>

@@ -14,6 +14,10 @@
   align-items: center;
 }
 
+.success-message {
+  color: #42ff4e;
+}
+
 .error-message {
   color: rgb(255, 85, 85);
 }
