@@ -1,7 +1,9 @@
 const { s3Client } = require("../lib/config");
 const { Upload } = require("@aws-sdk/lib-storage");
+const { ffmpeg } = require("../lib/config");
 const dotenv = require("dotenv");
 dotenv.config();
+const tempPath = path.join(__dirname, "../temp/", Date.now().toString());
 
 let clients = [];
 
@@ -14,7 +16,19 @@ const admin_controller = {
     try {
       const video_file = req.file;
       const video_name = req.body.video_name;
-
+      ffmpeg()
+        .input(video_file)
+        .toFormat(
+          "-hls_time 9",
+          "-hls_playlist_type vod",
+          "-hls_segment_filename " + tempPath + "_%03d.ts"
+        )
+        .output(tempPath + ".m3u8")
+        .on("progress", progress)
+        .on("end", () => {
+          // Continue with the upload process
+        })
+        .run();
       const params = {
         Bucket: "streamingappbucket",
         Key: Date.now().toString() + "-" + video_name,
