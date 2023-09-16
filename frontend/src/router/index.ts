@@ -11,7 +11,7 @@ const routes = [
   { path: '/', component: HomeView },
   { path: '/login', component: LoginView },
   { path: '/register', component: RegistrationView },
-  { path: '/video', component: VideoView },
+  { path: '/video/:id', component: VideoView },
   { path: '/uploadvideo', component: UploadVideoView }
 ]
 

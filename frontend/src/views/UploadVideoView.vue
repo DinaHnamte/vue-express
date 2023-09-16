@@ -6,12 +6,16 @@ const error_message = ref<string>('')
 const video_name = ref<string>('')
 const video_file = ref<File>()
 const upload_progress = ref<number>(0)
+const conversion_progress = ref<number>(0)
 
 const intiSSE = () => {
   const eventSource = new EventSource('http://127.0.0.1:3000/admin/uploadprogress')
-  eventSource.onmessage = (event) => {
+  eventSource.addEventListener('conversion_update', (event) => {
+    conversion_progress.value = parseFloat(event.data)
+  })
+  eventSource.addEventListener('upload_update', (event) => {
     upload_progress.value = parseFloat(event.data)
-  }
+  })
   onUnmounted(() => {
     eventSource.close()
   })
@@ -22,10 +26,9 @@ const can_upload = computed(() => {
 })
 
 const handle_file_change = (e: Event) => {
-  const input = e.target as HTMLInputElement
-  if (input.files) {
-    video_file.value = input.files[0]
-    console.log(video_file.value)
+  const files = (e.target as HTMLInputElement).files
+  if (files && files.length > 0) {
+    video_file.value = files[0]
   }
 }
 
@@ -35,13 +38,7 @@ const upload_video = async () => {
     form_data.append('video_name', video_name.value)
     form_data.append('video_file', video_file.value, video_file.value.name)
     try {
-      const response = await axios.post('http://127.0.0.1:3000/admin/uploadvideo', form_data, {
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.total) {
-            upload_progress.value = (progressEvent.loaded / progressEvent.total) * 100
-          }
-        }
-      })
+      const response = await axios.post('http://127.0.0.1:3000/admin/uploadvideo', form_data)
       console.log(response)
     } catch (error) {
       error_message.value = 'An error occured. Please try again'
@@ -56,11 +53,13 @@ const upload_video = async () => {
       <input type="text" placeholder="Enter name for the video" v-model="video_name" />
       <div class="input-group">
         <label for="video_file">Video File:</label>
-        <input type="file" name="video_file" @change="handle_file_change" />
+        <input type="file" name="video_file" accept="video/*" @change="handle_file_change" />
         <button :disabled="!can_upload">Upload</button>
       </div>
+      <span v-if="conversion_progress">conversion:{{ conversion_progress.toFixed(2) }}</span>
+      <progress :value="conversion_progress" max="100"></progress>
+      <span v-if="upload_progress">upload:{{ upload_progress.toFixed(2) }}</span>
       <progress :value="upload_progress" max="100"></progress>
-      <span v-if="upload_progress">{{ upload_progress.toFixed(2) }}</span>
       <span v-if="error_message">{{ error_message }}</span>
     </form>
   </div>

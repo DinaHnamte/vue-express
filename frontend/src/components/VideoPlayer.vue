@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import videojs from 'video.js'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import 'video.js/dist/video-js.css'
@@ -31,4 +31,4 @@ onBeforeUnmount(() => {
   <div>
     <video ref="videoPlayer" class="video-js"></video>
   </div>
-</template>
+</template> -->

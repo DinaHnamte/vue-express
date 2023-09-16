@@ -1,5 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import MenuBar from '@/components/MenuBar.vue'
+</script>
 
 <template>
-  <h1>Welcome to about Page Congrats!!!</h1>
+  <MenuBar />
 </template>
