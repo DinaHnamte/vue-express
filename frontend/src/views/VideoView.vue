@@ -1,45 +1,56 @@
 <script setup lang="ts">
-import VideoPlayer from '@/components/VideoPlayer.vue'
 import axios from 'axios'
 import 'video.js/dist/video-js.css'
 import videojs from 'video.js'
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import type Player from 'video.js/dist/types/player'
 
 const route = useRoute()
 const src = ref<string>()
-const videoPlayer = ref()
+const videoPlayer = ref<string | HTMLVideoElement | null>(null)
+let player: Player
 
 const get_src = async () => {
   const response = await axios.post('http://127.0.0.1:3000/user/getMovie', {
     id: route.params.id
   })
-  src.value = response.data
+  const blob = new Blob([response.data], { type: 'application/x-mpegURL' })
+  src.value = URL.createObjectURL(blob)
   console.log(src.value)
-  videoPlayer.value = videojs(
-    'player',
-    {
-      controls: true,
-      autoplay: true,
-      sources: [
-        {
-          src: response.data,
-          type: 'application/x-mpegURL'
-        }
-      ]
-    },
-    () => {
-      videojs.log('your player is ready')
-    }
-  )
+  if (videoPlayer.value)
+    player = videojs(
+      videoPlayer.value,
+      {
+        controls: true,
+        autoplay: true,
+        prelaod: 'auto',
+        fluid: true,
+        sources: [
+          {
+            src: src.value,
+            type: 'application/x-mpegURL'
+          }
+        ]
+      },
+      () => {
+        console.log(typeof player)
+        videojs.log('your player is ready')
+      }
+    )
 }
 
 onMounted(async () => {
   await get_src()
-  videoPlayer.value.play()
+})
+
+onUnmounted(() => {
+  if (player) {
+    player.dispose()
+  }
 })
 </script>
 
 <template>
-  <video id="player" class="video-js"></video>
+  <video id="videoPlayer" ref="videoPlayer" class="video-js"></video>
 </template>

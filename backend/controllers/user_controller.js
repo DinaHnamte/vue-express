@@ -147,15 +147,14 @@ const user_controller = {
             "test.m3u8"
           );
           res.setHeader("Content-Type", "application/x-mpegURL");
-          res.sendFile(real_path);
 
-          // const dir = path.dirname(temp_file_path);
-          // if (!fs.existsSync(dir)) {
-          //   fs.mkdirSync(dir, { recursive: true });
-          // }
-          // fs.writeFileSync(temp_file_path, manifest_final);
-          // res.setHeader("Content-Type", "application/x-mpegURL");
-          // res.sendFile(temp_file_path);
+          const dir = path.dirname(temp_file_path);
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+          fs.writeFileSync(temp_file_path, manifest_final);
+          res.setHeader("Content-Type", "application/x-mpegURL");
+          res.sendFile(temp_file_path);
         });
       }
     });
